@@ -8,8 +8,8 @@ kN2 = 30*0.4e-2
 % advbfn = '9885advb-cal.nc'; % burstfile name
 % advsfn = '9885advs-cal.nc'; % statistics filename
 
-advbfn = '9916advb-cal.nc'; % burstfile name
-advsfn = '9916advs-cal.nc'; % statistics filename
+advbfn = '../9916advb-cal.nc'; % burstfile name
+advsfn = '../9916advs-cal.nc'; % statistics filename
 zr = 0.4; % placeholder...need to check measurement elevation here
 bps.instrname = 'ADV 9916';
 
@@ -114,8 +114,34 @@ for n = 1:length(dn)
       kh = qkhfs( 2*pi/PUV(n).Tr, depth(n) );
       k(n) = kh./depth(n);
       Ur(n) = 0.75*0.5*PUV(n).Hrmsu*k(n)./(kh.^3); % RRvR Eqn. 6.
+      
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      % Use the Nortek wds routines to check.
+      % These are slightly modified from 
+      % http://www.nortekusa.com/usa/knowledge-center/table-of-contents/waves
+      lf=.035;      %Hz - low frequency cutoff
+      maxfac=200;   %   - maximum value of factor scaling pressure to waves
+      minspec=0.1;  %m^2/Hz - minimum spectral level for computing
+                    %         direction and spreading
+      Ndir=0;        %deg - direction offset (includes compass error and 
+              %      misalignment of cable probe relative to case
+              % the offset for the Aquadopp Profiler is 0
+
+      parms=[lf maxfac minspec Ndir];
+      hp = nanmedian(zp);
+      hv = -pdelz;
+      nF = 1050;
+      [Su,Sp,Dir,Spread,F,dF,DOF] = wds(detrend(u),detrend(v),detrend(p),1/fs,nF,hp,hv,parms);
+      [Hs(n),peakF(n),peakDir(n),peakSpread(n)] = hs(Su,Sp,Dir,Spread,F,dF);
+      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    end
 end
+%% The directions from PUV need to be flipped 180, I think.
+azr = 180+[PUV(:).azr];
+
+% and the negative directions from hs need to be converted to 0 - 360.
+peakDir(peakDir<0)=peakDir(peakDir<0)+360.;
+
 %% make some summary plots
 ok = find(~isnan(depth));
 rp = ruessink_asymm( Ur )
@@ -125,21 +151,33 @@ r = rp.r;
 sk = UBS.ur_sk;
 
 figure(5); clf
-subplot(311)
-plot(dn(ok),[PUV(:).Hrmsu],'linewidth',2)
+subplot(411)
+h1=plot(dn(ok),[PUV(:).Hrmsu],'linewidth',2);
 hold on
-plot(dn(ok),[PUV(:).Hrmsp],'.')
+h2=plot(dn(ok),[PUV(:).Hrmsp],'.');
+h3=plot(dn,Hs,'-');
 xlim([dn(1) dn(end)]);
 datetick('x','keeplimits')
 ylabel('Hrmsu, Hrmsp [m]')
+legend([h1;h2;h3],'Hrmsu','Hrmsp','Hs wds')
 
-subplot(312)
+
+subplot(412)
+h1=plot(dn(ok),azr,'linewidth',2);
+hold on
+h2=plot(dn,peakDir,'.');
+xlim([dn(1) dn(end)]);
+datetick('x','keeplimits')
+ylabel('Direction [\circT]')
+legend([h1;h2],'Dp PUV','Dp wds')
+
+subplot(413)
 plot(dn(ok),log10(Ur(ok)))
 xlim([dn(1) dn(end)]);
 ylabel('log10[ Ur ]')
 datetick('x','keeplimits')
 
-subplot(313)
+subplot(414)
 plot(dn(ok),r(ok))
 hold on
 plot(dn(ok),Su(ok))
