@@ -144,7 +144,7 @@ peakDir(peakDir<0)=peakDir(peakDir<0)+360.;
 
 %% make some summary plots
 ok = find(~isnan(depth));
-rp = ruessink_asymm( Ur )
+rp = ruessink_asymm( Ur );
 Su = rp.Su;
 Au = rp.Au;
 r = rp.r;
