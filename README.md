@@ -21,6 +21,8 @@ Matlab scripts to process Fire Island oceanographic data. This repo is in ..\pro
 * `ruessink_asymm` - Function to calculate asymmetry parameters from Ursell number
 * `urotate`        - Unfinished function to rotate velocities into direction of wave propagation
 * `ustats`         - Unfinished function to calculate statistics on u returned by `urotate`
+
+* `compare_advs`   - Reads and plots from both ADV statistics files.
 ---
 ### Nortek scripts
 We thank NortekUSA for several scripts written by Lee Gordon and distributed here:
