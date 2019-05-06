@@ -1,5 +1,5 @@
 # FI_processing
-Matlab scripts to process Fire Island oceanographic data
+Matlab scripts to process Fire Island oceanographic data. This repo is in ..\proj\2019_FireIslandAsymmetry\FI_processing on my desktop.
 ---
 ### Overall goals of this repo
 * Compare asymmetry deduced from bulk wave statistics via Ursell number with asymmetry measure with near-bottom instruments
