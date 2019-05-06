@@ -8,8 +8,8 @@ kN2 = 30*0.4e-2
 % advbfn = '9885advb-cal.nc'; % burstfile name
 % advsfn = '9885advs-cal.nc'; % statistics filename
 
-advbfn = '../9916advb-cal.nc'; % burstfile name
-advsfn = '../9916advs-cal.nc'; % statistics filename
+advbfn = fullfile('..','9916advb-cal.nc'); % burstfile name
+advsfn = fullfile('..','9916advs-cal.nc'); % statistics filename
 zr = 0.4; % placeholder...need to check measurement elevation here
 bps.instrname = 'ADV 9916';
 
@@ -109,7 +109,7 @@ for n = 1:length(dn)
       figure(4); clf
       [sd1 az1 sd2 az2]=pcastats(u*100,v*100,50,1);
       
-      UBS(n) = ubstats( u, v, fs );
+      UBS(n) = ubstatsr( u, v, fs );
       PUV(n) = puvq(p, u, v, depth(n), zp(n), zr(n), fs, 1050, 1030., 0.04, 1/6);
       kh = qkhfs( 2*pi/PUV(n).Tr, depth(n) );
       k(n) = kh./depth(n);
@@ -166,10 +166,11 @@ subplot(412)
 h1=plot(dn(ok),azr,'linewidth',2);
 hold on
 h2=plot(dn,peakDir,'.');
+h3=plot(dn(ok),180+[UBS(:).maj_az],'.');
 xlim([dn(1) dn(end)]);
 datetick('x','keeplimits')
 ylabel('Direction [\circT]')
-legend([h1;h2],'Dp PUV','Dp wds')
+legend([h1;h2;h3],'Dp PUV + 180','Dp wds','PCA maj + 180')
 
 subplot(413)
 plot(dn(ok),log10(Ur(ok)))
@@ -186,3 +187,4 @@ ylabel('r, Su')
 
 xlim([dn(1) dn(end)]);
 datetick('x','keeplimits')
+print -dpng 'summary_plot.png')
